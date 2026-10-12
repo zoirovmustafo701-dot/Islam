@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="tg" dir="ltr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>Нур — Қуръон</title>
+<meta name="theme-color" content="#1a5f7a">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;background:#f0f4f8;color:#1a2b3c;padding-bottom:80px;min-height:100vh}
+.main-header{background:linear-gradient(135deg,#1a5f7a,#2a8f9a);color:#fff;padding:24px 20px;text-align:center;border-radius:0 0 24px 24px;box-shadow:0 4px 15px rgba(0,0,0,.1)}
+.main-header h1{font-size:36px;font-weight:700;margin-bottom:4px;letter-spacing:2px}
+.main-header p{font-size:16px;opacity:.9}
+.screen{display:none;padding:20px}
+.screen.active{display:block}
+.screen h2{font-size:28px;font-weight:600;margin-bottom:20px;color:#1a5f7a;text-align:center}
+.alphabet-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+.letter-card{background:#fff;border-radius:16px;padding:16px 8px;text-align:center;box-shadow:0 2px 8px rgba(0,0,0,.06);cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:90px;transition:transform .2s}
+.letter-card:active{transform:scale(.95)}
+.letter-card .arabic-letter{font-size:42px;font-weight:700;color:#1a5f7a;line-height:1.2;margin-bottom:4px}
+.letter-card .letter-name{font-size:14px;color:#5a7a8a;font-weight:500}
+.surah-list{display:flex;flex-direction:column;gap:10px}
+.list-item{background:#fff;border-radius:16px;padding:16px 18px;box-shadow:0 2px 8px rgba(0,0,0,.06);cursor:pointer;display:flex;align-items:center;border-left:5px solid #2a8f9a;transition:transform .2s}
+.list-item:active{transform:scale(.98)}
+.list-item .item-number{font-size:16px;font-weight:700;color:#2a8f9a;background:#e8f4f8;min-width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;margin-right:14px;flex-shrink:0}
+.list-item .item-info{flex:1;min-width:0}
+.list-item .item-title{font-size:18px;font-weight:600;color:#1a2b3c;margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.list-item .item-subtitle{font-size:13px;color:#7a8a9a}
+.list-item .item-arrow{font-size:22px;color:#b0c0d0;margin-left:6px}
+.bottom-nav{position:fixed;bottom:0;left:0;right:0;background:#fff;display:flex;justify-content:space-around;padding:8px 0;padding-bottom:calc(8px + env(safe-area-inset-bottom));box-shadow:0 -4px 20px rgba(0,0,0,.08);border-top:1px solid #e0e8f0;z-index:100}
+.nav-btn{background:none;border:none;display:flex;flex-direction:column;align-items:center;padding:8px 16px;cursor:pointer;color:#8a9aaa;font-size:13px;font-weight:500;border-radius:12px;min-width:80px}
+.nav-btn.active{color:#1a5f7a}
+.nav-btn .nav-icon{font-size:24px;margin-bottom:2px}
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:200;justify-content:center;align-items:flex-end}
+.modal-overlay.active{display:flex}
+.modal-content{background:#fff;width:100%;max-width:500px;max-height:90vh;border-radius:24px 24px 0 0;padding:24px;overflow-y:auto;position:relative;animation:slideUp .3s ease}
+@keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
+.modal-close{position:sticky;top:0;background:#f0f4f8;border:none;width:36px;height:36px;border-radius:50%;font-size:20px;color:#5a7a8a;cursor:pointer;display:flex;align-items:center;justify-content:center;z-index:10;margin-bottom:12px}
+.letter-detail{text-align:center}
+.letter-detail .big-letter{font-size:120px;font-weight:700;color:#1a5f7a;line-height:1.1;margin-bottom:8px}
+.letter-detail .big-letter-name{font-size:28px;font-weight:600;color:#1a2b3c;margin-bottom:24px}
+.btn-audio{background:linear-gradient(135deg,#1a5f7a,#2a8f9a);color:#fff;border:none;padding:14px 32px;border-radius:50px;font-size:16px;font-weight:600;cursor:pointer;box-shadow:0 4px 15px rgba(26,95,122,.3);margin:6px 4px}
+.btn-audio:active{transform:scale(.96)}
+.btn-play-all{background:linear-gradient(135deg,#2a8f9a,#1a5f7a);color:#fff;border:none;padding:16px;border-radius:14px;font-size:17px;font-weight:600;cursor:pointer;width:100%;margin-bottom:16px;box-shadow:0 4px 15px rgba(26,95,122,.3)}
+.arabic-text{font-size:30px;line-height:2;text-align:right;direction:rtl;color:#1a2b3c;margin-bottom:10px;padding:14px;background:#f8fafc;border-radius:14px;font-family:'Amiri','Traditional Arabic',serif}
+.ayah-box{margin-bottom:22px;padding-bottom:18px;border-bottom:1px solid #e8eef4}
+.ayah-num{font-size:13px;color:#8a9aaa;margin-bottom:8px;font-weight:600}
+.surah-title{text-align:center;color:#1a5f7a;margin-bottom:20px;font-size:22px;font-weight:700}
+.status{text-align:center;padding:40px 20px;font-size:17px;color:#7a8a9a;line-height:1.6}
+.status.err{color:#c0392b}
+</style>
+</head>
+<body>
+<header class="main-header"><h1>Нур</h1><p>Қуръон ва алифбои арабӣ</p></header>
+<main>
+<section id="screen-alphabet" class="screen active"><h2>Алифбо</h2><div class="alphabet-grid" id="alphabetGrid"></div></section>
+<section id="screen-surahs" class="screen"><h2>Сураҳо</h2><div class="surah-list" id="surahList"><div class="status" id="loadStatus">Дар ҳоли боргирӣ...</div></div></section>
+<section id="screen-duas" class="screen"><h2>Дуоҳо</h2><div class="surah-list" id="duaList"></div></section>
+</main>
+<nav class="bottom-nav">
+<button class="nav-btn active" data-screen="alphabet"><span class="nav-icon">📖</span><span>Алифбо</span></button>
+<button class="nav-btn" data-screen="surahs"><span class="nav-icon">📚</span><span>Сураҳо</span></button>
+<button class="nav-btn" data-screen="duas"><span class="nav-icon">🤲</span><span>Дуоҳо</span></button>
+</nav>
+<div id="modal-overlay" class="modal-overlay" onclick="if(event.target===this)closeModal()">
+<div class="modal-content"><button class="modal-close" onclick="closeModal()">×</button><div id="modal-body"></div></div>
+</div>
+<audio id="player" preload="auto"></audio>
+<script>
+const SURAH_NAMES=["Ал-Фотиҳа","Ал-Бақара","Оли Имрон","Ан-Нисо","Ал-Моида","Ал-Анъом","Ал-Аъроф","Ал-Анфол","Ат-Тавба","Юнус","Ҳуд","Юсуф","Ар-Раъд","Иброҳим","Ал-Ҳиҷр","Ан-Наҳл","Ал-Исро","Ал-Каҳф","Марям","То Ҳо","Ал-Анбиё","Ал-Ҳаҷ","Ал-Муъминун","Ан-Нур","Ал-Фурқон","Аш-Шуаро","Ан-Намл","Ал-Қасас","Ал-Анкабут","Ар-Рум","Луқмон","Ас-Саҷда","Ал-Аҳзоб","Сабо","Фотир","Ёсин","Ас-Соффот","Сод","Аз-Зумар","Ғофир","Фусилат","Аш-Шуро","Аз-Зухруф","Ад-Духон","Ал-Ҷосия","Ал-Аҳқоф","Муҳаммад","Ал-Фатҳ","Ал-Ҳуҷурот","Қоф","Аз-Зориёт","Ат-Тур","Ан-Наҷм","Ал-Қамар","Ар-Раҳмон","Ал-Воқеа","Ал-Ҳадид","Ал-Муҷодала","Ал-Ҳашр","Ал-Мумтаҳана","Ас-Сафф","Ал-Ҷумуа","Ал-Мунофиқун","Ат-Тағобун","Ат-Талок","Ат-Таҳрим","Ал-Мулк","Ал-Қалам","Ал-Ҳоққа","Ал-Маориҷ","Нуҳ","Ал-Ҷин","Ал-Муззаммил","Ал-Муддассир","Ал-Қиёма","Ал-Инсон","Ал-Мурсалот","Ан-Набаъ","Ан-Нозиот","Абаса","Ат-Таквир","Ал-Инфитор","Ал-Мутаффифин","Ал-Иншиқоқ","Ал-Буруҷ","Ат-Ториқ","Ал-Аъло","Ал-Ғошия","Ал-Фаҷр","Ал-Балад","Аш-Шамс","Ал-Лайл","Ад-Дуҳо","Аш-Шарҳ","Ат-Тин","Ал-Алақ","Ал-Қадр","Ал-Баййина","Аз-Залзала","Ал-Одиёт","Ал-Қориа","Ат-Такасур","Ал-Аср","Ал-Ҳумаза","Ал-Фил","Қурайш","Ал-Моун","Ал-Кавсар","Ал-Кофирун","Ан-Наср","Ал-Масад","Ал-Ихлос","Ал-Фалақ","Ан-Нас"];
+const alphabetData=[{letter:'ا',name:'Алиф'},{letter:'ب',name:'Бо'},{letter:'ت',name:'То'},{letter:'ث',name:'Со'},{letter:'ج',name:'Ҷим'},{letter:'ح',name:'Ҳо'},{letter:'خ',name:'Хо'},{letter:'د',name:'Дол'},{letter:'ذ',name:'Зол'},{letter:'ر',name:'Ре'},{letter:'ز',name:'Зе'},{letter:'س',name:'Син'},{letter:'ش',name:'Шин'},{letter:'ص',name:'Сод'},{letter:'ض',name:'Зод'},{letter:'ط',name:'То (эмфатикӣ)'},{letter:'ظ',name:'Зо (эмфатикӣ)'},{letter:'ع',name:'Айн'},{letter:'غ',name:'Ғайн'},{letter:'ف',name:'Фо'},{letter:'ق',name:'Қоф'},{letter:'ك',name:'Коф'},{letter:'ل',name:'Лом'},{letter:'م',name:'Мим'},{letter:'ن',name:'Нун'},{letter:'ه',name:'Ҳо'},{letter:'و',name:'Вов'},{letter:'ي',name:'Йо'}];
+const duasData=[{id:1,title:'Пеш аз хӯрок',subtitle:'Дуои пеш аз таом',arabic:'اللَّهُمَّ بَارِكْ لَنَا فِيمَا رَزَقْتَنَا وَقِنَا عَذَابَ النَّارِ',transcription:'Аллоҳумма барик лана фима разақтана ва қина азабан-нар',translation:'Худоё, баракат деҳ ба мо дар он чӣ рӯзӣ додӣ ва моро аз азоби дӯзах нигаҳ дор'},{id:2,title:'Баъд аз хӯрок',subtitle:'Дуои баъд аз таом',arabic:'الْحَمْدُ لِلَّهِ الَّذِي أَطْعَمَنَا وَسَقَانَا وَجَعَلَنَا مُسْلِمِينَ',transcription:'Алҳамду лилляҳи аллазӣ атъамана ва сақана ва ҷаъалана муслимин',translation:'Ситоиш Худоро, ки моро таъом дод ва об дод ва моро мусулмон гардонд'},{id:3,title:'Пеш аз хоб',subtitle:'Дуои пеш аз хоб',arabic:'بِاسْمِكَ اللَّهُمَّ أَمُوتُ وَأَحْيَا',transcription:'Бисмика Аллоҳумма амуту ва аҳё',translation:'Ба номи Ту, Худоё, мемирам ва зинда мешавам'},{id:4,title:'Ҳангоми бедор',subtitle:'Дуои пас аз бедор шудан',arabic:'الْحَمْدُ لِلَّهِ الَّذِي أَحْيَانَا بَعْدَ مَا أَمَاتَنَا وَإِلَيْهِ النُّشُورُ',transcription:'Алҳамду лилляҳи аллазӣ аҳёна баъда ма аматана ва илайҳин-нушур',translation:'Ситоиш Худоро, ки моро зинда кард баъд аз он ки моронд ва ба сӯи Ӯ бозгашт аст'}];
+const QURAN_KEY='nur_quran_v2';
+const CDN='https://raw.githubusercontent.com/quran-by-verses/yaser-aldosry-128/main/verses/';
+const FULL='https://download.quranicaudio.com/quran/mishaari_raashid_al_3afaasee/';
+function pad3(n){return String(n).padStart(3,'0');}
+async function loadQuran(){const statusEl=document.getElementById('loadStatus');const cached=localStorage.getItem(QURAN_KEY);if(cached){try{window.QURAN=JSON.parse(cached);renderSurahs();statusEl.textContent='';return;}catch(e){localStorage.removeItem(QURAN_KEY);}}statusEl.textContent='Дар ҳоли боргирӣ аз интернет...';try{const res=await fetch('https://api.alquran.cloud/v1/quran/quran-uthmani');if(!res.ok)throw new Error('HTTP '+res.status);const data=await res.json();const grouped={};data.data.surahs.forEach(function(s){grouped[s.number]=s.ayahs.map(function(a){return a.text;});});window.QURAN=grouped;try{localStorage.setItem(QURAN_KEY,JSON.stringify(grouped));}catch(e){}renderSurahs();}catch(e){statusEl.className='status err';statusEl.innerHTML='Хато. Интернетро пайваст кунед ва саҳифаро нав кунед.<br><small>'+e.message+'</small>';}}
+function renderSurahs(){const list=document.getElementById('surahList');if(!window.QURAN)return;let html='';for(let i=1;i<=114;i++){const ayahs=window.QURAN[i]?window.QURAN[i].length:0;html+='<div class="list-item" onclick="openSurahModal('+i+')"><div class="item-number">'+i+'</div><div class="item-info"><div class="item-title">'+SURAH_NAMES[i-1]+'</div><div class="item-subtitle">'+ayahs+' оят</div></div><div class="item-arrow">›</div></div>';}list.innerHTML=html;}
+function renderAlphabet(){document.getElementById('alphabetGrid').innerHTML=alphabetData.map(function(item){return '<div class="letter-card" onclick="openLetterModal(\''+item.letter+'\',\''+item.name+'\')"><div class="arabic-letter">'+item.letter+'</div><div class="letter-name">'+item.name+'</div></div>';}).join('');}
+function renderDuas(){document.getElementById('duaList').innerHTML=duasData.map(function(item){return '<div class="list-item" onclick="openDuaModal('+item.id+')"><div class="item-number">'+item.id+'</div><div class="item-info"><div class="item-title">'+item.title+'</div><div class="item-subtitle">'+item.subtitle+'</div></div><div class="item-arrow">›</div></div>';}).join('');}
+function openLetterModal(letter,name){document.getElementById('modal-body').innerHTML='<div class="letter-detail"><div class="big-letter">'+letter+'</div><div class="big-letter-name">'+name+'</div><button class="btn-audio" onclick="playTTS(\''+letter+'\')">🔊 Бишнав</button></div>';document.getElementById('modal-overlay').classList.add('active');}
+function openSurahModal(num){
+const ayahs=window.QURAN?window.QURAN[num]:null;if(!ayahs)return;
+let html='<div class="surah-title">'+SURAH_NAMES[num-1]+'</div>';
+html+='<button class="btn-play-all" onclick="playUrl(\''+FULL+num+'.mp3\')">▶️ Шунидани тамоми сура</button>';
+if(num!==1&&num!==9){html+='<div class="arabic-text" style="text-align:center;font-size:24px;">بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ</div>';}
+ayahs.forEach(function(text,idx){
+const audioUrl=CDN+pad3(num)+pad3(idx+1)+'.mp3';
+html+='<div class="ayah-box"><div class="ayah-num">Ояти '+(idx+1)+'</div><div class="arabic-text">'+text+'</div><button class="btn-audio" style="font-size:15px;padding:10px 22px;" onclick="playUrl(\''+audioUrl+'\')">🔊 Бишнав</button></div>';
+});
+document.getElementById('modal-body').innerHTML=html;
+document.getElementById('modal-overlay').classList.add('active');
+}
+function openDuaModal(id){const d=duasData.find(function(x){return x.id===id});if(!d)return;document.getElementById('modal-body').innerHTML='<div class="surah-title">'+d.title+'</div><div class="arabic-text">'+d.arabic+'</div><div style="font-size:18px;color:#2a8f9a;background:#e8f4f8;padding:12px;border-radius:12px;margin-bottom:12px;font-weight:500;">'+d.transcription+'</div><div style="font-size:13px;font-weight:600;color:#8a9aaa;text-transform:uppercase;letter-spacing:1px;">Тарҷума:</div><div style="font-size:17px;color:#5a7a8a;padding:10px 0;line-height:1.6;">'+d.translation+'</div><button class="btn-audio" onclick="playTTS(\''+d.arabic.replace(/'/g,"\\'")+'\')">🔊 Бишнав</button>';document.getElementById('modal-overlay').classList.add('active');}
+function closeModal(){document.getElementById('modal-overlay').classList.remove('active');const p=document.getElementById('player');p.pause();}
+function playUrl(url){
+const p=document.getElementById('player');
+try{p.pause();}catch(e){}
+p.src=url;
+p.load();
+setTimeout(function(){
+const pr=p.play();
+if(pr!==undefined){pr.catch(function(e){setTimeout(function(){p.play().catch(function(){});},300);});}
+},200);
+}
+function playTTS(text){if('speechSynthesis' in window){const u=new SpeechSynthesisUtterance(text);u.lang='ar-SA';u.rate=0.7;speechSynthesis.cancel();speechSynthesis.speak(u);}}
+document.querySelectorAll('.nav-btn').forEach(function(btn){btn.addEventListener('click',function(){const target=this.dataset.screen;document.querySelectorAll('.nav-btn').forEach(function(b){b.classList.remove('active')});this.classList.add('active');document.querySelectorAll('.screen').forEach(function(s){s.classList.remove('active');if(s.id==='screen-'+target)s.classList.add('active');});});});
+renderAlphabet();renderDuas();loadQuran();
+if('serviceWorker' in navigator){navigator.serviceWorker.register('sw.js').catch(function(){});}
+</script>
+</body>
+</html>
